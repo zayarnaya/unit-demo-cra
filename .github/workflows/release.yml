@@ -1,59 +1,72 @@
 name: DEPLOY
 on: workflow_dispatch
 jobs:
-    # perform-tests:
-    #     uses: ./.github/workflows/tests.yml
-    update-issue:
-        # needs: perform-tests
-        runs-on: ubuntu-latest
-        steps:
-          - uses: actions/checkout@v3
-            with:
-                fetch-depth: 0
-          - run: |
-              TAG=$(git describe --tags --abbrev=0)
-              ISSUE_TITLE="RELEASE ${TAG}"
-              ISSUE_ID=$(gh issue list --json number,title -q \
-                ".[] | select(.title == \"${ISSUE_TITLE}\") | .number")
-                gh issue comment ${ISSUE_ID} --body "TESTS RUN"
-            env:
-              GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
-
-    deploy:
-      # needs: perform-tests
+    get_tag:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v3
-        - uses: actions/setup-node@v3
           with:
-            node-version: "16"
-        - uses: actions/checkout@v3
-          with:
-            fetch-depth: 0
-          if: ${{ github.ref == 'refs/heads/master' }}
-        - run: |
-            npm ci
-            git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-            # npx gh-pages -d build -u "github-actions-bot <support+actions@github.com>"
-            npm run deploy -- -u "github-actions-bot <support+actions@github.com>"
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          if: success()
-        - name: Close Issue
+              fetch-depth: 0
+        - run: echo "TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+        - run: echo ${TAG}
 
-          env:
-            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          run: |
-            # последний тэг?
-            TAG=$(git describe --tags --abbrev=0)
-            ISSUE_TITLE="RELEASE ${TAG}"
-            ISSUE_ID=$(gh issue list --json number,title -q \
-              ".[] | select(.title == \"${ISSUE_TITLE}\") | .number")
-            if [ ! -z "$ISSUE_ID" ]; then
-              gh issue close $ISSUE_ID -c "[Release successfully deployed](https://zayarnaya.github.io/unit-demo-cra/)" -r "completed"
-            fi
+    perform-tests:
+        needs: get_tag
+        uses: ./.github/workflows/tests.yml
+        with: 
+          update_issue: true
+          tagname: ${{ needs.get_tag.outputs.TAG }}
+    # update-issue:
+    #     # needs: perform-tests
+    #     runs-on: ubuntu-latest
+    #     steps:
+    #       - uses: actions/checkout@v3
+    #         with:
+    #             fetch-depth: 0
+    #       - run: |
+    #           TAG=$(git describe --tags --abbrev=0)
+    #           ISSUE_TITLE="RELEASE ${TAG}"
+    #           ISSUE_ID=$(gh issue list --json number,title -q \
+    #             ".[] | select(.title == \"${ISSUE_TITLE}\") | .number")
+    #             gh issue comment ${ISSUE_ID} --body "TESTS RUN"
+    #         env:
+    #           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+
+    # deploy:
+    #   # needs: perform-tests
+    #   runs-on: ubuntu-latest
+    #   steps:
+    #     - uses: actions/checkout@v3
+    #     - uses: actions/setup-node@v3
+    #       with:
+    #         node-version: "16"
+    #     - uses: actions/checkout@v3
+    #       with:
+    #         fetch-depth: 0
+    #       if: ${{ github.ref == 'refs/heads/master' }}
+    #     - run: |
+    #         npm ci
+    #         git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+    #         # npx gh-pages -d build -u "github-actions-bot <support+actions@github.com>"
+    #         npm run deploy -- -u "github-actions-bot <support+actions@github.com>"
+    #       env:
+    #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #       if: success()
+    #     - name: Close Issue
+
+    #       env:
+    #         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #       run: |
+    #         # последний тэг?
+    #         TAG=$(git describe --tags --abbrev=0)
+    #         ISSUE_TITLE="RELEASE ${TAG}"
+    #         ISSUE_ID=$(gh issue list --json number,title -q \
+    #           ".[] | select(.title == \"${ISSUE_TITLE}\") | .number")
+    #         if [ ! -z "$ISSUE_ID" ]; then
+    #           gh issue close $ISSUE_ID -c "[Release successfully deployed](https://zayarnaya.github.io/unit-demo-cra/)" -r "completed"
+    #         fi
 
 
 

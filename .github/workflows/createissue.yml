@@ -62,7 +62,7 @@ jobs:
               Author: ${{ github.actor }}
               Version: ${{ github.ref_name }}
               ${{ steps.tag-info.outputs.TAG_CONTENT }}
-              ${{ steps.changelog.outputs.CHANGELOG }}
+              Changelog: ${{ steps.changelog.outputs.CHANGELOG }}
         # if: ! ${{ steps.find_issue.outputs.ISSUE_ID }}
     #   - name: update issue
     #     id: issue_upd
