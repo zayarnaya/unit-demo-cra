@@ -12,9 +12,10 @@ jobs:
     steps:
         
       - uses: actions/checkout@v3
-    #   - name: get tag info
-    #     id: tag-info
-    #     run: git show ${{github.ref_name}} >> $GITHUB_OUTPUT
+      - name: get tag info
+        id: tag-info
+        # run: echo (git show ${{github.ref_name}}) >> $GITHUB_OUTPUT
+        run: echo "TAG_MESSAGE=$(git tag -l --format='%(contents:subject)'${GITHUB_REF#refs/*/})" >> $GITHUB_OUTPUT
       - uses: dacbd/create-issue-action@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -23,4 +24,7 @@ jobs:
             title: RELEASE ${{ github.ref_name }}
             labels: RELEASE
             # body: ${{ steps.tag-info.outputs }}
-            body: ${{ github.ref }}
+            body: |
+              Realease: ${{ github.ref_name }}
+              Author: ${{ github.actor }}
+              Info: ${{ steps.tag-info.outputs }}
