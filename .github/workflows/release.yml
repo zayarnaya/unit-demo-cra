@@ -29,7 +29,7 @@ jobs:
         tagname: ${{ needs.get_tag.outputs.tag }}
 
     deploy:
-      needs: perform-tests
+      needs: [perform-tests, get_tag]
       runs-on: ubuntu-latest
       steps:
         - uses: actions/setup-node@v3
@@ -47,12 +47,11 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           if: success()
         - name: close issue
-# Закрывает issue. Интересно, сработает ли в этот раз способ добычи тега...
+# Закрывает issue. Интересно, сработает ли в этот раз способ добычи тега... не сработал. Странное!
           env:
             GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           run: |
-            TAG=$(git describe --tags --abbrev=0)
-            ISSUE_TITLE="RELEASE ${TAG}"
+            ISSUE_TITLE="RELEASE ${{ needs.get_tag.outputs.tag }}"
             ISSUE_ID=$(gh issue list --json number,title -q \
               ".[] | select(.title == \"${ISSUE_TITLE}\") | .number")
             if [ ! -z "$ISSUE_ID" ]; then
