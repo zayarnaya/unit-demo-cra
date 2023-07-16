@@ -18,13 +18,11 @@ jobs:
         run: |
           echo "CURR=${{ github.ref_name }}" >> $GITHUB_OUTPUT
           echo "PREV=$(git describe --tags --abbrev=0 ${{ github.ref_name }}^)" >> $GITHUB_OUTPUT
-        #   echo "PREV=$(git tag -l v[0-9]* --sort=-creatordate | head -n 1)" >> $GITHUB_OUTPUT
-          
+
       - name: get tag info
         id: tag-info
         run: echo "TAG_CONTENT=$(git for-each-ref --count=1 refs/tags/v* --shell --sort='-refname' --format='TAG=%(refname) CONTENTS=%(*body) DATE=%(taggerdate)')"
-        # run: echo "TAG_CONTENT=$(git cat-file tag ${{ steps.tags.outputs.CURR }} | tail -n+6)" >> $GITHUB_OUTPUT
-        # run: echo "TAG_MESSAGE=$(git tag -l --format='%(contents:subject)'${GITHUB_REF#refs/*/})" >> $GITHUB_OUTPUT
+        
       - name: check tag content
         run: | 
             echo "TAG_ CONTENT ${{ steps.tag-info.outputs.TAG_CONTENT }}"
@@ -63,6 +61,7 @@ jobs:
               Version: ${{ github.ref_name }}
               ${{ steps.tag-info.outputs.TAG_CONTENT }}
               Changelog: ${{ steps.changelog.outputs.CHANGELOG }}
+            # тут я не поняла, что в if поставить, чтобы она апдейтилась  
         # if: ! ${{ steps.find_issue.outputs.ISSUE_ID }}
     #   - name: update issue
     #     id: issue_upd

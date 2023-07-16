@@ -16,9 +16,9 @@ jobs:
           run: |
             echo "TAG=$(git describe --tags --match v[0-9]* $(git rev-list --tags --max-count=1))" >> $GITHUB_OUTPUT
 
-        # - name: check if tag is ok
-        #   id: ok
-        #   run: echo ${{ steps.last.outputs.TAG }}
+        - name: check if tag is ok
+          id: ok
+          run: echo ${{ steps.last.outputs.TAG }}
 
 
     perform-tests:
@@ -27,57 +27,37 @@ jobs:
       with: 
         update_issue: true
         tagname: ${{ needs.get_tag.outputs.tag }}
-    # update-issue:
-    #     # needs: perform-tests
-    #     runs-on: ubuntu-latest
-    #     steps:
-    #       - uses: actions/checkout@v3
-    #         with:
-    #             fetch-depth: 0
-    #       - run: |
-    #           TAG=$(git describe --tags --abbrev=0)
-    #           ISSUE_TITLE="RELEASE ${TAG}"
-    #           ISSUE_ID=$(gh issue list --json number,title -q \
-    #             ".[] | select(.title == \"${ISSUE_TITLE}\") | .number")
-    #             gh issue comment ${ISSUE_ID} --body "TESTS RUN"
-    #         env:
-    #           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    deploy:
+      needs: perform-tests
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/setup-node@v3
+          with:
+            node-version: "16"
+        - uses: actions/checkout@v3
+          with:
+            fetch-depth: 0
+          if: ${{ github.ref == 'refs/heads/master' }}
+        - run: |
+            npm ci
+            git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+            npm run deploy -- -u "github-actions-bot <support+actions@github.com>"
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          if: success()
+        - name: close issue
 
-
-    # deploy:
-    #   # needs: perform-tests
-    #   runs-on: ubuntu-latest
-    #   steps:
-    #     - uses: actions/checkout@v3
-    #     - uses: actions/setup-node@v3
-    #       with:
-    #         node-version: "16"
-    #     - uses: actions/checkout@v3
-    #       with:
-    #         fetch-depth: 0
-    #       if: ${{ github.ref == 'refs/heads/master' }}
-    #     - run: |
-    #         npm ci
-    #         git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-    #         # npx gh-pages -d build -u "github-actions-bot <support+actions@github.com>"
-    #         npm run deploy -- -u "github-actions-bot <support+actions@github.com>"
-    #       env:
-    #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #       if: success()
-    #     - name: Close Issue
-
-    #       env:
-    #         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #       run: |
-    #         # последний тэг?
-    #         TAG=$(git describe --tags --abbrev=0)
-    #         ISSUE_TITLE="RELEASE ${TAG}"
-    #         ISSUE_ID=$(gh issue list --json number,title -q \
-    #           ".[] | select(.title == \"${ISSUE_TITLE}\") | .number")
-    #         if [ ! -z "$ISSUE_ID" ]; then
-    #           gh issue close $ISSUE_ID -c "[Release successfully deployed](https://zayarnaya.github.io/unit-demo-cra/)" -r "completed"
-    #         fi
+          env:
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          run: |
+            TAG=$(git describe --tags --abbrev=0)
+            ISSUE_TITLE="RELEASE ${TAG}"
+            ISSUE_ID=$(gh issue list --json number,title -q \
+              ".[] | select(.title == \"${ISSUE_TITLE}\") | .number")
+            if [ ! -z "$ISSUE_ID" ]; then
+              gh issue close $ISSUE_ID -c "[Release successfully deployed](https://zayarnaya.github.io/unit-demo-cra/)" -r "completed"
+            fi
 
 
 
