@@ -11,7 +11,9 @@ jobs:
               fetch-depth: 0
         - name: get last tag
           id: last
-          run: echo "TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+          run: |
+            TAG=$(git describe --tags --abbrev=0)
+            echo "TAG=${TAG}" >> $GITHUB_OUTPUT
         - name: check if tag is ok
           id: ok
           run: echo "TAG=${TAG}"
