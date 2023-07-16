@@ -39,7 +39,7 @@ jobs:
         run: |
           echo "log<<-EOF" >> $GITHUB_OUTPUT
           echo ${{ steps.changelog.outputs.CHANGELOG }} >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          echo "-EOF" >> $GITHUB_OUTPUT
       - name: find issue
         id: find_issue
         run: |
