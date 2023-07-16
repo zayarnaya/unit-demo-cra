@@ -47,10 +47,10 @@ jobs:
               Version: ${{ github.ref_name }}
               ${{ steps.tag-info.outputs.TAG_CONTENT }}
               ${{ steps.changelog.outputs.CHANGELOG }}
-        if: !steps.tag-info.outputs.ISSUE_ID
+        if: ! ${{ steps.tag-info.outputs.ISSUE_ID }}
       - name: update issue
         id: issue_upd
-        if: steps.tag-info.outputs.ISSUE_ID
+        if: ${{ steps.tag-info.outputs.ISSUE_ID }}
         run: $(gh issue comment ${{ steps.tag-info.outputs.ISSUE_ID }} --body ${{ steps.changelog.outputs.CHANGELOG }})
 
                             
