@@ -4,6 +4,7 @@ jobs:
     perform-tests:
         uses: ./.github/workflows/tests.yml
     build-app:
+        needs: perform-tests
         runs-on: ubuntu-latest
         steps:
         - uses: actions/checkout@v3
@@ -18,6 +19,7 @@ jobs:
             name: build
             path: build/
     deploy:
+      needs: build-app
       runs-on: ubuntu-latest
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
