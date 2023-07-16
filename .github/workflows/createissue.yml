@@ -7,23 +7,24 @@ permissions:
   contents: read
   issues: write 
 jobs:
-  stuff:
+  create_issue:
     runs-on: ubuntu-latest
-    steps:
-        
+    steps:        
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: get tag info
-        id: tag-info
-        run: echo "TAG_CONTENT=$(git cat-file tag ${{ github.ref_name }} | tail -n+6)" >> $GITHUB_OUTPUT
-        # run: echo "TAG_MESSAGE=$(git tag -l --format='%(contents:subject)'${GITHUB_REF#refs/*/})" >> $GITHUB_OUTPUT
-      - name: form changelog
-        id: changelog
+      - name: set tags
+        id: tags
         run: |
           echo "CURR=${{ github.ref_name }}" >> $GITHUB_OUTPUT
           echo "PREV=$(git tag -l v[0-9]* --sort=-creatordate | head -n 1)" >> $GITHUB_OUTPUT
-          echo "CHANGELOG=$(git log --pretty=format:"- %s" "$PREV..$CURR")" >> $GITHUB_OUTPUT
+      - name: get tag info
+        id: tag-info
+        run: echo "TAG_CONTENT=$(git cat-file tag ${{ steps.tags.outputs.CURR }} | tail -n+6)" >> $GITHUB_OUTPUT
+        # run: echo "TAG_MESSAGE=$(git tag -l --format='%(contents:subject)'${GITHUB_REF#refs/*/})" >> $GITHUB_OUTPUT
+      - name: form changelog
+        id: changelog
+        run: echo "CHANGELOG=$(git log --pretty=format:"- %s" "${{ steps.tags.outputs.CURR }}..${{ steps.tags.outputs.PREV }}")" >> $GITHUB_OUTPUT
       - name: check changelog
         run: echo ${{ steps.changelog.outputs.CHANGELOG }}
       - name: find issue
