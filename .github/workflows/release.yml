@@ -1,0 +1,38 @@
+name: release
+on: workflow_dispatch
+jobs:
+    perform-tests:
+        uses: ./.github/workflows/tests.yml
+    build-app:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v3
+        - uses: actions/setup-node@v3 
+          with:
+            node-version: "16"
+        - run: npm ci
+        - run: npm run build
+          if: success()
+        - uses: actions/upload-artifact@v3
+          with:
+            name: build
+            path: build/
+    deploy:
+      runs-on: ubuntu-latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      steps:
+        - run: |
+            npm i gh-pages
+            git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+            npx gh-pages -d build -u "github-actions-bot <support+actions@github.com>"
+        #   if: success()
+        # - run: | 
+        # добыть тэг, найти по нему issue
+        #     TAG=${{ github.ref_name }}
+        #     ISSUE_TITLE="Release ${BRANCH#*-}"
+        #     ISSUE_ID=$(gh issue list --json number,title,labels -q \
+        #       ".[] | select(.title == \"${ISSUE_TITLE}\" and .labels[].name == \"RELEASE\") | .number")
+        #     if [ ! -z "$ISSUE_ID" ]; then
+        #       gh issue close $ISSUE_ID -c "[Deployment done](https://sr480.github.io/unit-demo-cra/)" -r "completed"
+        #     fi
