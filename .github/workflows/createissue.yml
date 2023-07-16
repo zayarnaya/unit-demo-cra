@@ -14,7 +14,8 @@ jobs:
       - uses: actions/checkout@v3
       - name: get tag info
         id: tag-info
-        run: echo "TAG_CONTENT=$(git show ${{github.ref_name}})" >> $GITHUB_OUTPUT
+        run: echo "TAG_CONTENT=$(git show ${{github.ref_name}}  --pretty=format:"%H %an %s"
+        )" >> $GITHUB_OUTPUT
         # run: echo "TAG_MESSAGE=$(git tag -l --format='%(contents:subject)'${GITHUB_REF#refs/*/})" >> $GITHUB_OUTPUT
       - uses: dacbd/create-issue-action@main
         env:
