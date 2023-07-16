@@ -20,11 +20,14 @@ jobs:
 
 
     perform-tests:
-        needs: get_tag
-        uses: ./.github/workflows/tests.yml
-        with: 
-          update_issue: true
-          tagname: ${{ needs.get_tag.steps.last.outputs.TAG }}
+      needs: get_tag
+      runs-on: ubuntu-latest
+      steps:
+        - run: echo ${{ needs.get_tag.steps.last.outputs.TAG }}
+        # uses: ./.github/workflows/tests.yml
+        # with: 
+        #   update_issue: true
+        #   tagname: ${{ needs.get_tag.steps.last.outputs.TAG }}
     # update-issue:
     #     # needs: perform-tests
     #     runs-on: ubuntu-latest
