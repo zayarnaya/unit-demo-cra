@@ -1,6 +1,6 @@
 name: auto testing
 on:
-  pull_request
+  [pull_request, workflow_call]
 jobs:
   unit-test:
     runs-on: ubuntu-latest
