@@ -47,7 +47,7 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           if: success()
         - name: close issue
-
+# Закрывает issue. Интересно, сработает ли в этот раз способ добычи тега...
           env:
             GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           run: |
