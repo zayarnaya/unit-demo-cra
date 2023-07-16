@@ -5,6 +5,8 @@ jobs:
       runs-on: ubuntu-latest
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      outputs: 
+        tag: ${{ steps.last.outputs.TAG }}
       steps:
         - uses: actions/checkout@v3
           with:
@@ -23,7 +25,7 @@ jobs:
       needs: get_tag
       runs-on: ubuntu-latest
       steps:
-        - run: echo ${{ needs.get_tag.outputs.TAG }}
+        - run: echo ${{ needs.get_tag.outputs.tag }}
         # uses: ./.github/workflows/tests.yml
         # with: 
         #   update_issue: true
