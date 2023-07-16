@@ -34,4 +34,6 @@ jobs:
         with: 
             update_existing: true
             search_existing: all
-
+      - name: check tag info
+        id: check_info
+        run: "echo ${{ steps.tag-info.outputs.TAG_CONTENT }}"

@@ -1,6 +1,6 @@
 ---
 
-title: RELEASE {{ github.ref_name }}
+title: RELEASE {{ env.TAG_NAME }}
 labels: RELEASE
 
 ---
