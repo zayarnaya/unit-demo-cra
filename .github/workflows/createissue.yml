@@ -19,7 +19,7 @@ jobs:
       - name: find issue
         id: find_issue
         run: |
-          TAG = $(git tag -l v[0-9]* --sort=-creatordate | head -n 1)
+          TAG=$(git tag -l v[0-9]* --sort=-creatordate | head -n 1)
           ISSUE_TITLE=RELEASE ${ TAG }
           
           echo "ISSUE_ID=$(gh issue list --json number,title -q \
