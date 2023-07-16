@@ -12,6 +12,8 @@ jobs:
     steps:
         
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: get tag info
         id: tag-info
         run: echo "TAG_CONTENT=$(git cat-file tag ${{ github.ref_name }} | tail -n+6)" >> $GITHUB_OUTPUT
@@ -22,6 +24,8 @@ jobs:
           echo "CURR=${{ github.ref_name }}" >> $GITHUB_OUTPUT
           echo "PREV=$(git tag -l v[0-9]* --sort=-creatordate | head -n 1)" >> $GITHUB_OUTPUT
           echo "CHANGELOG=$(git log --pretty=format:"- %s" "$PREV..$CURR")" >> $GITHUB_OUTPUT
+      - name: check changelog
+        run: echo ${{ steps.changelog.outputs.CHANGELOG }}
       - name: find issue
         id: find_issue
         run: |
@@ -30,6 +34,8 @@ jobs:
           
           echo "ISSUE_ID=$(gh issue list --json number,title -q \
           ".[] | select(.title == \"${ISSUE_TITLE}\") | .number")" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: check issue ID
         id: check_id
         run: echo "ISSUE_EXISTS=${{ steps.tag-info.outputs.ISSUE_ID }}" >> $GITHUB_OUTPUT
