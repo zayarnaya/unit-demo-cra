@@ -22,6 +22,10 @@ jobs:
       # needs: build-app
       runs-on: ubuntu-latest
       steps:
+        - uses: actions/checkout@v3
+        - uses: actions/setup-node@v3
+          with:
+            node-version: "16"
         - run: |
             npm ci
             git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
