@@ -1,34 +1,34 @@
 name: release
 on: workflow_dispatch
 jobs:
-    perform-tests:
-        uses: ./.github/workflows/tests.yml
-    build-app:
-        needs: perform-tests
-        runs-on: ubuntu-latest
-        steps:
-        - uses: actions/checkout@v3
-        - uses: actions/setup-node@v3 
-          with:
-            node-version: "16"
-        - run: npm ci
-        - run: npm run build
-          if: success()
-        - uses: actions/upload-artifact@v3
-          with:
-            name: build
-            path: build/
+    # perform-tests:
+    #     uses: ./.github/workflows/tests.yml
+    # build-app:
+    #     needs: perform-tests
+    #     runs-on: ubuntu-latest
+    #     steps:
+    #     - uses: actions/checkout@v3
+    #     - uses: actions/setup-node@v3 
+    #       with:
+    #         node-version: "16"
+    #     - run: npm ci
+    #     - run: npm run build
+    #       if: success()
+    #     - uses: actions/upload-artifact@v3
+    #       with:
+    #         name: build
+    #         path: build/
     deploy:
-      needs: build-app
+      # needs: build-app
       runs-on: ubuntu-latest
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GITHUB_REPOSITORY: zayarnaya/unit-demo-cra
       steps:
         - run: |
             npm i gh-pages
-            git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+            git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/zayarnaya/unit-demo-cra.git
             npx gh-pages -d build -u "github-actions-bot <support+actions@github.com>"
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          if: ${{ github.ref == 'refs/heads/master' }}
         #   if: success()
         # - run: | 
         # добыть тэг, найти по нему issue
