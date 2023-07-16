@@ -28,12 +28,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+            token: ${{ env.GITHUB_TOKEN }}
             title: RELEASE ${{ github.ref_name }}
             labels: RELEASE
             body: |
               Author: ${{ github.actor }}
               Version: ${{ github.ref_name }}
               ${{ steps.tag-info.outputs.TAG_CONTENT }}
+      - name: check issue ID
+        id: check_id
+        run: echo "${{ steps.tag-info.outputs.TAG_CONTENT }}"
 
                             
                 
