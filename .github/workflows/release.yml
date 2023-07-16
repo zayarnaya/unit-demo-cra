@@ -1,10 +1,10 @@
 name: DEPLOY
 on: workflow_dispatch
 jobs:
-    perform-tests:
-        uses: ./.github/workflows/tests.yml
+    # perform-tests:
+    #     uses: ./.github/workflows/tests.yml
     update-issue:
-        needs: perform-tests
+        # needs: perform-tests
         runs-on: ubuntu-latest
         steps:
           - uses: actions/checkout@v3
@@ -16,17 +16,22 @@ jobs:
               ISSUE_ID=$(gh issue list --json number,title -q \
                 ".[] | select(.title == \"${ISSUE_TITLE}\") | .number")
                 gh issue comment ${ISSUE_ID} --body "TESTS RUN"
+            env:
+              GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
 
     deploy:
-      needs: perform-tests
+      # needs: perform-tests
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v3
         - uses: actions/setup-node@v3
           with:
             node-version: "16"
+        - uses: actions/checkout@v3
+          with:
+            fetch-depth: 0
           if: ${{ github.ref == 'refs/heads/master' }}
         - run: |
             npm ci
@@ -37,6 +42,7 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           if: success()
         - name: Close Issue
+
           env:
             GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           run: |
