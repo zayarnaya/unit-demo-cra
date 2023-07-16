@@ -34,6 +34,12 @@ jobs:
         run: echo "CHANGELOG=$(git log --pretty=format:"%s" "${{ steps.tags.outputs.PREV }}..${{ steps.tags.outputs.CURR }}")" >> $GITHUB_OUTPUT
       - name: check changelog
         run: echo ${{ steps.changelog.outputs.CHANGELOG }}
+      - name: changelog as a multistring var
+        id: changelog_wide
+        run: |
+          echo "log<<-EOF" >> $GITHUB_OUTPUT
+          echo ${{ steps.changelog.outputs.CHANGELOG }} >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
       - name: find issue
         id: find_issue
         run: |
@@ -59,8 +65,10 @@ jobs:
             body: |
               Author: ${{ github.actor }}
               Version: ${{ github.ref_name }}
-              ${{ steps.tag-info.outputs.TAG_CONTENT }}
-              Changelog: ${{ steps.changelog.outputs.CHANGELOG }}
+              ${{ steps.tag-info.outputs.TAG_CONTENT.TAG }}"
+              ${{ steps.tag-info.outputs.TAG_CONTENT.CONTENTS }}"
+              ${{ steps.tag-info.outputs.TAG_CONTENT.DATE }}"
+              Changelog: ${{ steps.changelog_wide.outputs.log }}
             # тут я не поняла, что в if поставить, чтобы она апдейтилась  
         # if: ! ${{ steps.find_issue.outputs.ISSUE_ID }}
     #   - name: update issue
