@@ -22,11 +22,12 @@ jobs:
           
       - name: get tag info
         id: tag-info
-        run: echo "TAG_CONTENT=$(git cat-file tag ${{ steps.tags.outputs.CURR }} | tail -n+6)" >> $GITHUB_OUTPUT
+        run: echo "TAG_CONTENT=$(git for-each-ref --count=1 refs/tags/v* --shell --sort='-refname' --format='TAG=%(refname) CONTENTS=%(contents) DATE=%(taggerdate)')"
+        # run: echo "TAG_CONTENT=$(git cat-file tag ${{ steps.tags.outputs.CURR }} | tail -n+6)" >> $GITHUB_OUTPUT
         # run: echo "TAG_MESSAGE=$(git tag -l --format='%(contents:subject)'${GITHUB_REF#refs/*/})" >> $GITHUB_OUTPUT
       - name: form changelog
         id: changelog
-        run: echo "CHANGELOG=$(git log --pretty=format:"- %s" "${{ steps.tags.outputs.CURR }}..${{ steps.tags.outputs.PREV }}")" >> $GITHUB_OUTPUT
+        run: echo "CHANGELOG=$(git log --pretty=format:"- %s" "${{ steps.tags.outputs.PREV }}..${{ steps.tags.outputs.CURR }}")" >> $GITHUB_OUTPUT
       - name: check changelog
         run: echo ${{ steps.changelog.outputs.CHANGELOG }}
       - name: find issue
