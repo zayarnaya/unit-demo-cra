@@ -7,7 +7,9 @@ jobs:
         - uses: actions/checkout@v3
           with:
               fetch-depth: 0
-        - run: echo "TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+        - name: get last tag
+          id: last
+          run: echo "TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
       env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -16,7 +18,7 @@ jobs:
         uses: ./.github/workflows/tests.yml
         with: 
           update_issue: true
-          tagname: ${{ needs.get_tag.outputs.TAG }}
+          tagname: ${{ needs.get_tag.steps.last.outputs.TAG }}
     # update-issue:
     #     # needs: perform-tests
     #     runs-on: ubuntu-latest
