@@ -17,7 +17,9 @@ jobs:
         id: tags
         run: |
           echo "CURR=${{ github.ref_name }}" >> $GITHUB_OUTPUT
-          echo "PREV=$(git tag -l v[0-9]* --sort=-creatordate | head -n 1)" >> $GITHUB_OUTPUT
+          echo "PREV=$(git describe --tags --abbrev=0 ${{ github.ref_name }}^)" >> $GITHUB_OUTPUT
+        #   echo "PREV=$(git tag -l v[0-9]* --sort=-creatordate | head -n 1)" >> $GITHUB_OUTPUT
+          
       - name: get tag info
         id: tag-info
         run: echo "TAG_CONTENT=$(git cat-file tag ${{ steps.tags.outputs.CURR }} | tail -n+6)" >> $GITHUB_OUTPUT
