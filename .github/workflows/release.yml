@@ -12,11 +12,11 @@ jobs:
         - name: get last tag
           id: last
           run: |
-            TAG=$(git describe --tags --match v[0-9]* $(git rev-list --tags --max-count=1)) >> $GITHUB_OUTPUT
+            echo "TAG=$(git describe --tags --match v[0-9]* $(git rev-list --tags --max-count=1))" >> $GITHUB_OUTPUT
 
         - name: check if tag is ok
           id: ok
-          run: echo "${TAG}"
+          run: echo ${{ steps.last.outputs.TAG }}
 
 
     # perform-tests:
