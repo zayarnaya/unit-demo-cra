@@ -16,6 +16,12 @@ jobs:
         id: tag-info
         run: echo "TAG_CONTENT=$(git cat-file tag ${{ github.ref_name }} | tail -n+6)" >> $GITHUB_OUTPUT
         # run: echo "TAG_MESSAGE=$(git tag -l --format='%(contents:subject)'${GITHUB_REF#refs/*/})" >> $GITHUB_OUTPUT
+      - name: form changelog
+        id: changelog
+        run: |
+          echo "CURR=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          echo "PREV=$(git tag -l v[0-9]* --sort=-creatordate | head -n 1)" >> $GITHUB_OUTPUT
+          echo "CHANGELOG=$(git log --pretty=format:"- %s" "$PREV..$CURR")" >> $GITHUB_OUTPUT
       - name: find issue
         id: find_issue
         run: |
@@ -24,7 +30,12 @@ jobs:
           
           echo "ISSUE_ID=$(gh issue list --json number,title -q \
           ".[] | select(.title == \"${ISSUE_TITLE}\") | .number")" >> $GITHUB_OUTPUT
-      - uses: dacbd/create-issue-action@main
+      - name: check issue ID
+        id: check_id
+        run: echo "ISSUE_EXISTS=${{ steps.tag-info.outputs.ISSUE_ID }}" >> $GITHUB_OUTPUT
+      - name: create issue
+        id: issue
+        uses: dacbd/create-issue-action@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -35,9 +46,12 @@ jobs:
               Author: ${{ github.actor }}
               Version: ${{ github.ref_name }}
               ${{ steps.tag-info.outputs.TAG_CONTENT }}
-      - name: check issue ID
-        id: check_id
-        run: echo "${{ steps.tag-info.outputs.TAG_CONTENT }}"
+              ${{ steps.changelog.outputs.CHANGELOG }}
+        if: !steps.tag-info.outputs.ISSUE_ID
+      - name: update issue
+        id: issue_upd
+        if: steps.tag-info.outputs.ISSUE_ID
+        run: $(gh issue comment ${{ steps.tag-info.outputs.ISSUE_ID }} --body ${{ steps.changelog.outputs.CHANGELOG }})
 
                             
                 
