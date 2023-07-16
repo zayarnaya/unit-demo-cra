@@ -25,6 +25,6 @@ jobs:
             labels: RELEASE
             # body: ${{ steps.tag-info.outputs }}
             body: |
-              Realease: ${{ github.ref_name }}
+              Release: ${{ github.ref_name }}
               Author: ${{ github.actor }}
-              Info: ${{ steps.tag-info.outputs }}
+              Info: ${{ steps.tag-info.outputs.TAG_MESSAGE }}
