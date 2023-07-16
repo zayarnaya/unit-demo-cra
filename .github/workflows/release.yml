@@ -3,6 +3,8 @@ on: workflow_dispatch
 jobs:
     get_tag:
       runs-on: ubuntu-latest
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       steps:
         - uses: actions/checkout@v3
           with:
@@ -10,15 +12,17 @@ jobs:
         - name: get last tag
           id: last
           run: echo "TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
-      env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        - name: check if tag is ok
+          id: ok
+          run: echo "TAG=${TAG}"
 
-    perform-tests:
-        needs: get_tag
-        uses: ./.github/workflows/tests.yml
-        with: 
-          update_issue: true
-          tagname: ${{ needs.get_tag.steps.last.outputs.TAG }}
+
+    # perform-tests:
+    #     needs: get_tag
+    #     uses: ./.github/workflows/tests.yml
+    #     with: 
+    #       update_issue: true
+    #       tagname: ${{ needs.get_tag.steps.last.outputs.TAG }}
     # update-issue:
     #     # needs: perform-tests
     #     runs-on: ubuntu-latest
