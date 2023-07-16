@@ -1,5 +1,5 @@
 name: auto testing
-on: 
+on:
   pull_request:
   workflow_call:
     inputs:
@@ -22,16 +22,15 @@ jobs:
       - run: npm test
         if: ${{ inputs.update_issue }}
       - uses: actions/checkout@v3
-        with: 
-            fetch-depth: 0
+        with:
+          fetch-depth: 0
       - run: |
           ISSUE_TITLE="RELEASE ${{ inputs.tagname }}"
-          ISSUE_ID=$(gh issue list --json number,title -q \
-            ".[] | select(.title == \"${ISSUE_TITLE}\") | .number")
-            gh issue comment ${ISSUE_ID} --body "[TESTS RUN UNIT TESTS](https://github.com/${{ github.repository }}/commit/${{ github.sha }}/checks/${{ github.run_id }}) "
+          ISSUE_ID=$(gh issue list --json number,title -q \ ".[] | select(.title == \"${ISSUE_TITLE}\") | .number")
+          gh issue comment ${ISSUE_ID} --body "[TESTS RUN UNIT TESTS](https://github.com/${{ github.repository }}/commit/${{ github.sha }}/checks/${{ github.run_id }}) "
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-# Запускает e2e-тесты, если запускается из экшна деплоя - апдейтит issue
+  # Запускает e2e-тесты, если запускается из экшна деплоя - апдейтит issue
   e2e-test:
     runs-on: ubuntu-latest
     steps:
@@ -45,12 +44,11 @@ jobs:
       - run: npm run e2e
         if: ${{ inputs.update_issue }}
       - uses: actions/checkout@v3
-        with: 
-            fetch-depth: 0
+        with:
+          fetch-depth: 0
       - run: |
-            ISSUE_TITLE="RELEASE ${{ inputs.tagname }}"
-            ISSUE_ID=$(gh issue list --json number,title -q \
-              ".[] | select(.title == \"${ISSUE_TITLE}\") | .number")
-              gh issue comment ${ISSUE_ID} --body "[TESTS RUN E2E TESTS](https://github.com/${{ github.repository }}/commit/${{ github.sha }}/checks/${{ github.run_id }}) "
+          ISSUE_TITLE="RELEASE ${{ inputs.tagname }}"
+          ISSUE_ID=$(gh issue list --json number,title -q \ ".[] | select(.title == \"${ISSUE_TITLE}\") | .number")
+          gh issue comment ${ISSUE_ID} --body "[TESTS RUN E2E TESTS](https://github.com/${{ github.repository }}/commit/${{ github.sha }}/checks/${{ github.run_id }}) "
     env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,15 +1,15 @@
 name: create-issue-on-push-tag
 on:
-    push:
-        tags:
-            - v[0-9]* 
+  push:
+    tags:
+      - v[0-9]*
 permissions:
   contents: read
-  issues: write 
+  issues: write
 jobs:
   create_issue:
     runs-on: ubuntu-latest
-    steps:        
+    steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -21,14 +21,11 @@ jobs:
 
       - name: get tag info
         id: tag-info
-        run: echo "TAG_CONTENT=$(git for-each-ref --count=1 refs/tags/v* --shell --sort='-refname' --format='TAG=%(refname) CONTENTS=%(*body) DATE=%(taggerdate)')"
-        
-      - name: check tag content
-        run: | 
-            echo "TAG_ CONTENT ${{ steps.tag-info.outputs.TAG_CONTENT }}"
-            echo "TAG ${{ steps.tag-info.outputs.TAG_CONTENT.TAG }}"
-            echo "TAG ${{ steps.tag-info.outputs.TAG_CONTENT.CONTENTS }}"
-            echo "TAG ${{ steps.tag-info.outputs.TAG_CONTENT.DATE }}"
+        run: |
+          TAG_CONTENT=$(git for-each-ref --count=1 refs/tags/v* --shell --sort='-refname' --format='- TAG=%(refname) - CONTENTS=%(message) - DATE=%(taggerdate)')
+          echo "log<<-EOF" >> $GITHUB_OUTPUT
+          echo ${TAG_CONTENT} >> $GITHUB_OUTPUT
+          echo "-EOF" >> $GITHUB_OUTPUT
       - name: form changelog
         id: changelog
         run: |
@@ -43,34 +40,31 @@ jobs:
         run: |
           TAG=$(git tag -l v[0-9]* --sort=-creatordate | head -n 1)
           ISSUE_TITLE="RELEASE ${TAG}"
-          
-          echo "ISSUE_ID=$(gh issue list --json number,title -q \
-          ".[] | select(.title == \"${ISSUE_TITLE}\") | .number")" >> $GITHUB_OUTPUT
+          echo "ISSUE_ID=$(gh issue list --json number,title -q \ ".[] | select(.title == \"${ISSUE_TITLE}\") | .number")" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: check issue ID
         id: check_id
-        run: echo "ISSUE_EXISTS=${{ steps.tag-info.outputs.ISSUE_ID }}" >> $GITHUB_OUTPUT
+        run: echo "ISSUE_EXISTS=${{ steps.find_issue.outputs.ISSUE_ID }}" >> $GITHUB_OUTPUT
       - name: create issue
         id: issue
         uses: dacbd/create-issue-action@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-            token: ${{ env.GITHUB_TOKEN }}
-            title: RELEASE ${{ github.ref_name }}
-            labels: RELEASE
-            body: |
-              Author: ${{ github.actor }}
-              Version: ${{ github.ref_name }}
-              Changelog: ${{ steps.changelog.outputs.log }}
-            # тут я не поняла, что в if поставить, чтобы она апдейтилась  
-        # if: ! ${{ steps.find_issue.outputs.ISSUE_ID }}
-    #   - name: update issue
-    #     id: issue_upd
-    #     if: ${{ steps.find_issue.outputs.ISSUE_ID }}
-    #     run: $(gh issue comment ${{ steps.find_issue.outputs.ISSUE_ID }} --body ${{ steps.changelog.outputs.CHANGELOG }})
+          token: ${{ env.GITHUB_TOKEN }}
+          title: RELEASE ${{ github.ref_name }}
+          labels: RELEASE
+          body: |
+            Author: ${{ github.actor }}
+            Version: ${{ github.ref_name }}
+            Info: ${{ steps.tag-info.outputs.log }}
+            Changelog: ${{ steps.changelog.outputs.log }}
 
-                            
-                
-                
+        if: ! -n ${{ steps.find_issue.outputs.ISSUE_ID }}
+      - name: update issue
+        id: issue_upd
+        if: -n ${{ steps.find_issue.outputs.ISSUE_ID }}
+        run: $(gh issue comment ${{ steps.find_issue.outputs.ISSUE_ID }} --body ${{ steps.changelog.outputs.CHANGELOG }})
+        env:
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
