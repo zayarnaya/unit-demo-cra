@@ -1,4 +1,4 @@
-name: Create an issue on push tag
+name: create-issue-on-push-tag
 on:
     push:
         tags:
@@ -16,14 +16,22 @@ jobs:
         id: tag-info
         run: echo "TAG_CONTENT=$(git cat-file tag ${{ github.ref_name }} | tail -n+6)" >> $GITHUB_OUTPUT
         # run: echo "TAG_MESSAGE=$(git tag -l --format='%(contents:subject)'${GITHUB_REF#refs/*/})" >> $GITHUB_OUTPUT
-      - uses: dacbd/create-issue-action@main
+    #   - name: find issue
+    #     id: find_issue
+    #     run: |
+    #       TAG = $(git tag -l v[0-9]* --sort=-creatordate | head -n 1)
+    #       ISSUE_TITLE=RELEASE ${ TAG }
+          
+    #       echo "ISSUE_ID=$(gh issue list --json number,title -q \
+    #       ".[] | select(.title == \"${ISSUE_TITLE}\") | .number")" >> $GITHUB_OUTPUT
+    #   - uses: dacbd/create-issue-action@main
+      - uses: JasonEtco/create-an-issue@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ github.ref_name }}
+          TAG_MESSAGE: ${{ steps.tag-info.outputs.TAG_CONTENT }}
+          AUTHOR: ${{ github.actor }}
         with: 
-            token: ${{ secrets.GITHUB_TOKEN }}
-            title: RELEASE ${{ github.ref_name }}
-            labels: RELEASE
-            body: |
-              Release: ${{ github.ref_name }}
-              Author: ${{ github.actor }}
-              Info: ${{ steps.tag-info.outputs.TAG_CONTENT }}
+            update_existing: true
+            search_existing: all
+
