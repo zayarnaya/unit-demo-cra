@@ -31,7 +31,7 @@ jobs:
             echo "TAG ${{ steps.tag-info.outputs.TAG_CONTENT.DATE }}"
       - name: form changelog
         id: changelog
-        run: echo "CHANGELOG=$(git log --pretty=format:"- %s" "${{ steps.tags.outputs.PREV }}..${{ steps.tags.outputs.CURR }}")" >> $GITHUB_OUTPUT
+        run: echo "CHANGELOG=$(git log --pretty=format:"%s" "${{ steps.tags.outputs.PREV }}..${{ steps.tags.outputs.CURR }}")" >> $GITHUB_OUTPUT
       - name: check changelog
         run: echo ${{ steps.changelog.outputs.CHANGELOG }}
       - name: find issue
