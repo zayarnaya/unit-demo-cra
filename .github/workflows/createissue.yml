@@ -32,7 +32,7 @@ jobs:
       - name: form changelog
         id: changelog
         run: |
-          CHANGELOG=$(git log --pretty=format:"%s" "${{ steps.tags.outputs.PREV }}..${{ steps.tags.outputs.CURR }}")
+          CHANGELOG=$(git log --pretty=format:"- %s" "${{ steps.tags.outputs.PREV }}..${{ steps.tags.outputs.CURR }}")
           echo "log<<-EOF" >> $GITHUB_OUTPUT
           echo ${CHANGELOG} >> $GITHUB_OUTPUT
           echo "-EOF" >> $GITHUB_OUTPUT
