@@ -61,10 +61,10 @@ jobs:
             Info: ${{ steps.tag-info.outputs.log }}
             Changelog: ${{ steps.changelog.outputs.log }}
 
-        if: ! -n ${{ steps.find_issue.outputs.ISSUE_ID }}
-      - name: update issue
-        id: issue_upd
-        if: -n ${{ steps.find_issue.outputs.ISSUE_ID }}
-        run: $(gh issue comment ${{ steps.find_issue.outputs.ISSUE_ID }} --body ${{ steps.changelog.outputs.CHANGELOG }})
-        env:
-            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #     if: ! -n ${{ steps.find_issue.outputs.ISSUE_ID }}
+    #   - name: update issue
+    #     id: issue_upd
+    #     if: -n ${{ steps.find_issue.outputs.ISSUE_ID }}
+    #     run: $(gh issue comment ${{ steps.find_issue.outputs.ISSUE_ID }} --body ${{ steps.changelog.outputs.CHANGELOG }})
+    #     env:
+    #         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
