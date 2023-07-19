@@ -52,4 +52,4 @@ jobs:
         run: |
           ISSUE_TITLE="RELEASE ${{ needs.get_tag.outputs.tag }}"
           ISSUE_ID=$(gh issue list --json number,title -q \ ".[] | select(.title == \"${ISSUE_TITLE}\") | .number")
-          gh issue close $ISSUE_ID -c "[Release successfully deployed](https://zayarnaya.github.io/unit-demo-cra/)" -r "Successful deploy"
+          gh issue close $ISSUE_ID -c "[Release successfully deployed](https://zayarnaya.github.io/unit-demo-cra/)" -r "completed"
