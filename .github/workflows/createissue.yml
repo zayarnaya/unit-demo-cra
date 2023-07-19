@@ -22,7 +22,7 @@ jobs:
       - name: get tag info
         id: tag-info
         run: |
-          TAG_CONTENT=$(git for-each-ref --count=1 refs/tags/v* --shell --sort='-refname' --format='- TAG=%(refname) - CONTENTS=%(contents) - DATE=%(taggerdate)')
+          TAG_CONTENT=$(git for-each-ref --count=1 refs/tags/v* --shell --sort='-refname' --format='- TAG=%(refname) - CONTENTS=%(contents)')
           echo "log<<-EOF" >> $GITHUB_OUTPUT
           echo ${TAG_CONTENT} >> $GITHUB_OUTPUT
           echo "-EOF" >> $GITHUB_OUTPUT
