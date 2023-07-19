@@ -3,6 +3,7 @@
 
 Итак, к делу.
 
+
 1. На коммиты стоит прекоммит с линтом и вроде бы коммитлинтом, но не уверена
 
 2. На ПР стоит запуск тестов юнит, e2e, ну и еще раз еслинт и коммитлинт. Файлы [tests.yml](https://github.com/zayarnaya/unit-demo-cra/blob/master/.github/workflows/tests.yml), [lint.yml](https://github.com/zayarnaya/unit-demo-cra/blob/master/.github/workflows/lint.yml) и [commitlint.yml](https://github.com/zayarnaya/unit-demo-cra/blob/master/.github/workflows/commitlint.yml) соответственно
