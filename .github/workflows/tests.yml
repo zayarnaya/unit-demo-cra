@@ -21,23 +21,13 @@ jobs:
       - run: npm run build
       - run: npm test
         if: ${{ inputs.update_issue }}
-      - name: Get Current Job Log URL
-        id: get_job_id
-        run: job_id=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.run_id}}/attempts/${{ github.run_attempt }}/jobs | jq -r '.jobs | .[0].id') >> $GITHUB_OUTPUT
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # uses: Tiryoh/gha-jobid-action@v0
-
-        # with:
-        #   github_token: ${{ secrets.GITHUB_TOKEN }}
-        #   job_name: "unit-test"
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - run: |
           ISSUE_TITLE="RELEASE ${{ inputs.tagname }}"
           ISSUE_ID=$(gh issue list --json number,title -q \ ".[] | select(.title == \"${ISSUE_TITLE}\") | .number")
-          gh issue comment ${ISSUE_ID} --body "[WORKFLOW RUN](https://github.com/${{ github.repository }}/commit/${{ github.sha }}/checks/${{ github.run_id }}) \n\n [UNIT TESTS RUN](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs/${{ steps.get_job_id.outputs.job_id }})"
+          gh issue comment ${ISSUE_ID} --body "Unit tests completed - see [WORKFLOW RUN](https://github.com/${{ github.repository }}/commit/${{ github.sha }}/checks/${{ github.run_id }})"
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   # Запускает e2e-тесты, если запускается из экшна деплоя - апдейтит issue
@@ -59,6 +49,6 @@ jobs:
       - run: |
           ISSUE_TITLE="RELEASE ${{ inputs.tagname }}"
           ISSUE_ID=$(gh issue list --json number,title -q \ ".[] | select(.title == \"${ISSUE_TITLE}\") | .number")
-          gh issue comment ${ISSUE_ID} --body "[TESTS RUN E2E TESTS](https://github.com/${{ github.repository }}/commit/${{ github.sha }}/checks/${{ github.run_id }}) "
+          gh issue comment ${ISSUE_ID} --body "e2e test completed - see [WORKFLOW RUN](https://github.com/${{ github.repository }}/commit/${{ github.sha }}/checks/${{ github.run_id }}) "
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
